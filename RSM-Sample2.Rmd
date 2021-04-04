@@ -1,0 +1,97 @@
+---
+title: "RSM-example2"
+author: "PVS"
+date: "27/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+### R commands and output:
+
+library(rsm)
+
+### -------------------------
+### FUNCTION, y_hat_calcuate
+### -------------------------
+y_hat_calcuate <- function(PRES, TEMP, ET, MC) {
+
+  y_hat  <-   396.233     + (37.3 * PRES) +
+                            (31.783 * TEMP)  + (54.967 * ET ) + ( 263.067 * MC) -
+                            (6.350 * PRES * TEMP) - (11.650 * PRES * ET) +
+                            (23.1 * PRES * MC) + (2.3 * TEMP * ET) - (4.35 * TEMP * MC) +
+                            (16.55 * ET * MC)  - (88.625 * PRES * PRES) -
+                            (72.225 * TEMP * TEMP) - (89.875 * ET * ET) - (226.325 * MC * MC)
+  return(y_hat)
+  
+}
+###
+### END OF FUNCTION, y_hat_calcuate 
+### -------------------------------
+###
+## Read data and save relevant variables.
+fname = "D:/MDRF-FNDR/RSM/data/PAH-RECOVERY.DAT"
+
+m = matrix(scan(fname, skip = 1),ncol = 8,byrow = T)
+print(m)
+
+run             =   m[,1]
+B1              =   m[,2]
+B2              =   m[,3]
+PRES            =   m[,4]
+TEMP            =   m[,5]
+ET              =   m[,6]
+MC              =   m[,7]
+Y               =   m[,8]
+###
+cat("\n PRES")
+print(max(PRES))
+print(min(PRES))
+###
+cat("\n TEMP")
+print(max(TEMP))
+print(min(TEMP))
+###
+cat("\n TEMP")
+print(max(TEMP))
+print(min(TEMP))
+###
+cat("\n ET")
+print(max(ET))
+print(min(ET))
+###
+### CODING COEFFICIENTS FOR THE INDEPENDENT VARIABLES
+###
+cat("\n MC")
+print(max(MC))
+print(min(MC))
+###
+PRES   =  (PRES - 200) / 100
+TEMP   =  (TEMP - 70) / 30
+ET     =  (ET - 35) / 25
+MC     =  (MC - 10) / 10
+ 
+## Create data frame.
+df = data.frame(run,B1, B2, PRES, TEMP, ET, MC, Y)
+
+CR2.rsm     <- rsm(Y ~ B1 + B2 + SO(PRES, TEMP, ET, MC), data = df)
+CR2_summary = summary(CR2.rsm)
+print(CR2_summary)
+ 
+PRES_VAL   =  0.2594728
+TEMP_VAL   =  0.1959262
+ET_VAL     =  0.3472094
+MC_VAL     =  0.6052237 
+
+RES = y_hat_calcuate(PRES_VAL, TEMP_VAL, ET_VAL, MC_VAL)
+cat("\n=======================================================================")
+cat("\nThere is a unique treatment combination called stationary point")
+cat("\nPRES  =  0.2594728; TEMP =  0.1959262; ET = 0.3472094; MC = 0.6052237\n")
+cat("\nPredicted value at stationary point ", RES)
+cat("\n=======================================================================")
+```
+
